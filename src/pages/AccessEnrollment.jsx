@@ -116,7 +116,13 @@ export function AccessEnrollment() {
           </section>
           <Button type="submit" loading={loading} className="submit-access-btn">Submit access request</Button>
         </form>
-        <p className="form-switch"><button className="link-button" type="button" onClick={handleLoginTransition}>Already registered? Sign in</button></p>
+        <p className="form-switch">
+          Already registered?{' '}
+          <button className="link-button request-access-toggle" type="button" onClick={handleLoginTransition}>
+            <span className="toggle-icon toggle-icon--back"></span>
+            <span>Sign in</span>
+          </button>
+        </p>
       </div>
     </AuthSplitLayout>
   );

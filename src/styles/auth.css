@@ -206,6 +206,10 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
   transform: translateX(4px) scale(1.15);
 }
 
+.request-access-toggle:hover .toggle-icon--back {
+  transform: translateX(-4px) scale(1.15);
+}
+
 /* Submit Access Request Button & Step Animations */
 .submit-access-btn {
   position: relative;
