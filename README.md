@@ -1,16 +1,36 @@
-# React + Vite
+# Reusable branded authentication UI
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 18 sign-in and OTP verification screens with company branding controlled from one `.env` file.
 
-Currently, two official plugins are available:
+## Required first-time setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+After cloning the repository, run:
 
-## React Compiler
+```bash
+nvm use
+npm run setup
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This installs the exact dependency versions recorded in `package-lock.json`. Run it again whenever `package.json` or `package-lock.json` changes.
 
-## Expanding the Oxlint configuration
+## Start locally
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+After setup completes, run:
+
+```bash
+npm run dev
+```
+
+To reuse the layout for another company, edit `.env` and restart the server. Component code does not need to change.
+
+## API connection
+
+Set `VITE_API_BASE_URL` in `.env` to the API host, without the `/api/v1` suffix:
+
+```bash
+VITE_API_BASE_URL="http://localhost:8000"
+```
+
+Authentication screens use the live signup, registration OTP, login OTP, current-user and logout endpoints. Reusable clients for administrator operations and Excel template generation are available in `src/services/adminService.js` and `src/services/excelService.js`. The supplied reference does not include password reset or change-password endpoints, so those two existing screens remain in demo mode.
+
+See `REQUIREMENTS.md` for runtime, functional, and rebranding requirements.

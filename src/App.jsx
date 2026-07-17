@@ -1,78 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { Moon, Sun } from 'lucide-react';
-import { AppRoutes } from '@/routes/AppRoutes';
-import { BRAND_CONFIG } from '@/lib/config';
-import { cn } from '@/lib/cn';
+import { useCallback, useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { AUTH_CONFIG, BRAND_CSS_VARIABLES } from '@/config/authConfig';
+import { useIdleSession } from '@/hooks/useIdleSession';
+import { IdentityEntry } from '@/pages/IdentityEntry';
+import { ChallengeVerification } from '@/pages/ChallengeVerification';
+import { RecoveryRequest } from '@/pages/RecoveryRequest';
+import { CredentialUpdate } from '@/pages/CredentialUpdate';
+import { AccessEnrollment } from '@/pages/AccessEnrollment';
+import { AccessConsole } from '@/pages/AccessConsole';
+import { WorkspaceHome } from '@/pages/WorkspaceHome';
 
-/**
- * Root Application component providing router, dynamic white-label brand binding, and dark/light theme switch.
- */
-export const App = () => {
-  const [isDarkMode, setIsDarkMode] = useState(BRAND_CONFIG.defaultTheme === 'dark');
-
-  // Apply dark/light theme classes to document root
+export function App() {
+  const navigate = useNavigate();
+  const [sessionActive, setSessionActive] = useState(() => sessionStorage.getItem('authenticated') === 'true');
+  const [sessionRole, setSessionRole] = useState(() => sessionStorage.getItem('role') || '');
   useEffect(() => {
-    const root = document.documentElement;
-    if (isDarkMode) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }, [isDarkMode]);
-
-  // Apply dynamic white-label brand settings (.env) to page title and favicon
-  useEffect(() => {
-    if (BRAND_CONFIG.appTitle) {
-      document.title = BRAND_CONFIG.appTitle;
-    }
-
-    if (BRAND_CONFIG.faviconUrl) {
-      let faviconLink = document.querySelector("link[rel~='icon']");
-      if (!faviconLink) {
-        faviconLink = document.createElement('link');
-        faviconLink.rel = 'icon';
-        document.head.appendChild(faviconLink);
-      }
-      faviconLink.href = BRAND_CONFIG.faviconUrl;
-    }
+    document.title = AUTH_CONFIG.pageTitle;
   }, []);
+  useEffect(() => {
+    const syncSession = () => {
+      setSessionActive(sessionStorage.getItem('authenticated') === 'true');
+      setSessionRole(sessionStorage.getItem('role') || '');
+    };
+    window.addEventListener('auth-session-change', syncSession);
+    return () => window.removeEventListener('auth-session-change', syncSession);
+  }, []);
+  const expireSession = useCallback(() => {
+    sessionStorage.removeItem('authenticated');
+    sessionStorage.removeItem('role');
+    setSessionActive(false);
+    navigate('/login', { replace: true, state: { sessionExpired: true } });
+  }, [navigate]);
+  useIdleSession({ enabled: sessionActive, timeoutMinutes: AUTH_CONFIG.sessionTimeoutMinutes, onTimeout: expireSession });
 
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-background text-foreground relative selection:bg-primary/20 selection:text-primary">
-        {/* Top Floating Theme & Staging Toggle Bar */}
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className={cn(
-              'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border shadow-lg backdrop-blur-md cursor-pointer select-none',
-              isDarkMode
-                ? 'bg-slate-900/90 border-slate-700 text-blue-200 hover:bg-slate-800'
-                : 'bg-white/90 border-slate-200 text-slate-800 hover:bg-slate-50'
-            )}
-            title="Toggle Dark/Light Mode"
-          >
-            {isDarkMode ? (
-              <>
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
-                <span>Light Mode</span>
-              </>
-            ) : (
-              <>
-                <Moon className="w-3.5 h-3.5 text-indigo-600" />
-                <span>Dark Mode</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Routes */}
-        <AppRoutes />
-      </div>
-    </BrowserRouter>
+    <div style={BRAND_CSS_VARIABLES}>
+      <Routes>
+        <Route path="/login" element={<IdentityEntry />} />
+        <Route path="/otp-verification" element={<ChallengeVerification />} />
+        <Route path="/forgot-password" element={<RecoveryRequest />} />
+        <Route path="/change-password" element={<CredentialUpdate />} />
+        <Route path="/register" element={<AccessEnrollment />} />
+        <Route path="/dashboard" element={sessionActive ? <WorkspaceHome /> : <Navigate to="/login" replace />} />
+        <Route
+          path="/admin/access"
+          element={sessionActive && sessionRole === 'Finance Administrator' ? <AccessConsole /> : <Navigate to="/login" replace />}
+        />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </div>
   );
-};
-
-export default App;
+}
