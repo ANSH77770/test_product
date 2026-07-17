@@ -1,6 +1,7 @@
 // Previous name: DashboardPage.jsx
 import { useNavigate } from 'react-router-dom';
 import { AUTH_CONFIG } from '@/config/authConfig';
+import { authService } from '@/services/authService';
 
 export function WorkspaceHome() {
   const navigate = useNavigate();
@@ -8,8 +9,10 @@ export function WorkspaceHome() {
   const email = sessionStorage.getItem('userEmail') || '';
   const isAdministrator = role === 'Finance Administrator';
 
-  const signOut = () => {
+  const signOut = async () => {
+    try { await authService.logout(); } catch { /* Clear the local session even if logout fails. */ }
     sessionStorage.clear();
+    localStorage.removeItem('accessToken');
     window.dispatchEvent(new Event('auth-session-change'));
     navigate('/login', { replace: true });
   };

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMasterData } from '@/hooks/useMasterData';
 import { accessControlService } from '@/services/accessControlService';
+import { authService } from '@/services/authService';
 import { MasterDataEditor } from '@/shared/components/admin/MasterDataEditor';
 import { Button, MultiSelect, TextInput } from '@/shared/components';
 
@@ -20,8 +21,10 @@ export function AccessConsole() {
     accessControlService.saveAssignment(email, assignment);
     setSaved(true);
   };
-  const signOut = () => {
+  const signOut = async () => {
+    try { await authService.logout(); } catch { /* Clear the local session even if logout fails. */ }
     sessionStorage.clear();
+    localStorage.removeItem('accessToken');
     window.dispatchEvent(new Event('auth-session-change'));
     navigate('/login', { replace: true });
   };

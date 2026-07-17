@@ -9,13 +9,24 @@ export function ChallengeVerification() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [error, setError] = useState('');
 
-  if (!state?.challengeId) return <Navigate to="/login" replace />;
+  if (!state?.destination) return <Navigate to="/login" replace />;
 
   const verify = async (code) => {
     setLoading(true);
+    setError('');
     try {
-      const result = await authService.verifyOtp({ challengeId: state.challengeId, code });
+      if (state.purpose === 'REGISTRATION') {
+        await authService.verifyRegistrationOtp(state.destination, code);
+        setVerified(true);
+        return;
+      }
+      const result = await authService.verifyOtp({
+        email: state.destination,
+        code,
+        rememberMe: state.rememberMe,
+      });
       if (result.authenticated) {
         sessionStorage.setItem('authenticated', 'true');
         sessionStorage.setItem('role', state.role);
@@ -24,6 +35,8 @@ export function ChallengeVerification() {
         navigate('/dashboard', { replace: true });
       }
       setVerified(result.authenticated);
+    } catch (requestError) {
+      setError(requestError.message);
     } finally {
       setLoading(false);
     }
@@ -35,6 +48,9 @@ export function ChallengeVerification() {
         <div className="success-state" role="status">
           <div className="success-icon">✓</div>
           <AuthHeading title="Authentication successful" subtitle="Your identity has been verified." />
+          {state.purpose === 'REGISTRATION' && (
+            <Button type="button" onClick={() => navigate('/login')}>Continue to sign in</Button>
+          )}
           {state.role === 'Finance Administrator' && (
             <Button type="button" onClick={() => navigate('/admin/access')}>Open administration</Button>
           )}
@@ -45,13 +61,15 @@ export function ChallengeVerification() {
             title="Verify your identity"
             subtitle={`Enter the 6-digit code sent to ${state.destination}.`}
           />
+          {error && <div className="notice-error" role="alert">{error}</div>}
           <OtpForm
             onSubmit={verify}
-            onResend={() => authService.resendOtp(state.challengeId)}
-            onBack={() => navigate('/login', { state: { username: state.destination } })}
+            onResend={() => state.purpose === 'REGISTRATION'
+              ? authService.resendRegistrationOtp(state.destination)
+              : authService.resendOtp(state.destination)}
+            onBack={() => navigate(state.purpose === 'REGISTRATION' ? '/register' : '/login', { state: { username: state.destination } })}
             loading={loading}
           />
-          <p className="support-text">Demo mode: any 6-digit OTP is accepted.</p>
         </>
       )}
     </AuthSplitLayout>

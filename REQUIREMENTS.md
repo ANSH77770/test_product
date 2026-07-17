@@ -15,6 +15,17 @@
 
 The exact dependency ranges are maintained in `package.json` and the resolved versions are locked in `package-lock.json`.
 
+## Mandatory installation
+
+Run this once after cloning and whenever dependency files change:
+
+```bash
+nvm use
+npm run setup
+```
+
+`npm run setup` executes `npm ci`, which installs the exact dependency versions from `package-lock.json`. Do not manually install packages from a separate requirements list.
+
 ## Functional requirements
 
 - Responsive company-branded sign-in screen

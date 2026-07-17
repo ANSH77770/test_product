@@ -16,7 +16,7 @@ export function AccessEnrollment() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [apiError, setApiError] = useState('');
   const updateText = (field) => (event) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
@@ -40,6 +40,7 @@ export function AccessEnrollment() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
     setLoading(true);
+    setApiError('');
     try {
       await authService.registerUser(form);
       accessControlService.saveAssignment(form.email, {
@@ -47,7 +48,11 @@ export function AccessEnrollment() {
         channels: form.channels,
         brands: form.brands,
       });
-      setSubmitted(true);
+      navigate('/otp-verification', {
+        state: { destination: form.email, purpose: 'REGISTRATION' },
+      });
+    } catch (requestError) {
+      setApiError(requestError.message);
     } finally { setLoading(false); }
   };
 
@@ -55,8 +60,8 @@ export function AccessEnrollment() {
     <AuthSplitLayout brandPanel={<BrandPanel />} wide>
       <div className="registration-form">
         <AuthHeading title="Request access" subtitle="Create an account and select all required business access." />
-        {submitted ? <div className="notice-success">Your access request has been submitted for approval.</div> : (
-          <form onSubmit={submit} noValidate>
+        {apiError && <div className="notice-error" role="alert">{apiError}</div>}
+        <form onSubmit={submit} noValidate>
             <div className="registration-grid registration-grid--identity">
               <TextInput id="registration-name" label="Name" required value={form.name} onChange={updateText('name')} error={errors.name} />
               <TextInput id="registration-email" label="Email" type="email" required value={form.email} onChange={updateText('email')} error={errors.email} />
@@ -70,7 +75,6 @@ export function AccessEnrollment() {
             </div>
             <Button type="submit" loading={loading}>Submit access request</Button>
           </form>
-        )}
         <p className="form-switch"><button className="link-button" type="button" onClick={() => navigate('/login')}>Already registered? Sign in</button></p>
       </div>
     </AuthSplitLayout>

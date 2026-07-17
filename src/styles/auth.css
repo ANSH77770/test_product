@@ -83,6 +83,7 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .support-text { margin: 26px 0 0; text-align: center; color: var(--muted); font-size: 14px; }
 .form-switch { margin: 22px 0 0; text-align: center; color: var(--muted); font-size: 15px; }
 .notice-success { padding: 18px; border: 1px solid #a8dbc0; border-radius: 11px; background: #eefaf3; color: #17663a; line-height: 1.5; }
+.notice-error { margin: 0 0 20px; padding: 14px 16px; border: 1px solid #e5aaa3; border-radius: 11px; background: #fff1ef; color: #9f2f24; font-size: 14px; font-weight: 650; line-height: 1.45; }
 .registration-form { width: min(100%, 560px); margin-inline: auto; }
 .registration-form .auth-heading { margin-bottom: 22px; }
 .registration-form .form-field { margin-bottom: 14px; }

@@ -8,14 +8,18 @@ import { AuthHeading, AuthSplitLayout, BrandPanel, LoginForm } from '@/shared/co
 export function IdentityEntry() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = async (credentials) => {
     setLoading(true);
+    setError('');
     try {
       const challenge = await authService.requestOtp(credentials);
       navigate('/otp-verification', {
         state: { ...challenge, role: credentials.role },
       });
+    } catch (requestError) {
+      setError(requestError.message);
     } finally {
       setLoading(false);
     }
@@ -24,6 +28,7 @@ export function IdentityEntry() {
   return (
     <AuthSplitLayout brandPanel={<BrandPanel />}>
       <AuthHeading title={AUTH_CONFIG.loginTitle} subtitle={AUTH_CONFIG.loginSubtitle} />
+      {error && <div className="notice-error" role="alert">{error}</div>}
       <LoginForm
         roles={AUTH_CONFIG.roles}
         defaultUsername={AUTH_CONFIG.defaultUsername}
