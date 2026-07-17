@@ -9,6 +9,7 @@ export function IdentityEntry() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [exiting, setExiting] = useState(false);
 
   const handleLogin = async (credentials) => {
     setLoading(true);
@@ -25,8 +26,21 @@ export function IdentityEntry() {
     }
   };
 
+  const handleRegisterTransition = () => {
+    setExiting(true);
+    setTimeout(() => {
+      if (document.startViewTransition) {
+        document.startViewTransition(() => {
+          navigate('/register');
+        });
+      } else {
+        navigate('/register');
+      }
+    }, 280);
+  };
+
   return (
-    <AuthSplitLayout brandPanel={<BrandPanel />}>
+    <AuthSplitLayout brandPanel={<BrandPanel />} exiting={exiting}>
       <AuthHeading title={AUTH_CONFIG.loginTitle} subtitle={AUTH_CONFIG.loginSubtitle} />
       {error && <div className="notice-error" role="alert">{error}</div>}
       <LoginForm
@@ -34,7 +48,7 @@ export function IdentityEntry() {
         defaultUsername={AUTH_CONFIG.defaultUsername}
         onSubmit={handleLogin}
         onForgotPassword={() => navigate('/forgot-password')}
-        onRegister={() => navigate('/register')}
+        onRegister={handleRegisterTransition}
         loading={loading}
       />
       <p className="support-text">{AUTH_CONFIG.supportText}</p>

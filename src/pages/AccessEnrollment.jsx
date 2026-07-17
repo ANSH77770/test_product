@@ -18,6 +18,8 @@ export function AccessEnrollment() {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   const [openAccessSelect, setOpenAccessSelect] = useState(null);
+  const [exiting, setExiting] = useState(false);
+
   const updateText = (field) => (event) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
@@ -63,8 +65,21 @@ export function AccessEnrollment() {
     } finally { setLoading(false); }
   };
 
+  const handleLoginTransition = () => {
+    setExiting(true);
+    setTimeout(() => {
+      if (document.startViewTransition) {
+        document.startViewTransition(() => {
+          navigate('/login');
+        });
+      } else {
+        navigate('/login');
+      }
+    }, 280);
+  };
+
   return (
-    <AuthSplitLayout brandPanel={<BrandPanel />} wide>
+    <AuthSplitLayout brandPanel={<BrandPanel />} wide exiting={exiting}>
       <div className="registration-form">
         <div className="registration-form__eyebrow">New account</div>
         <AuthHeading title="Request access" subtitle="Tell us who you are and choose the business areas you need." />
@@ -99,9 +114,9 @@ export function AccessEnrollment() {
               </div>
             </div>
           </section>
-          <Button type="submit" loading={loading}>Submit access request</Button>
+          <Button type="submit" loading={loading} className="submit-access-btn">Submit access request</Button>
         </form>
-        <p className="form-switch"><button className="link-button" type="button" onClick={() => navigate('/login')}>Already registered? Sign in</button></p>
+        <p className="form-switch"><button className="link-button" type="button" onClick={handleLoginTransition}>Already registered? Sign in</button></p>
       </div>
     </AuthSplitLayout>
   );

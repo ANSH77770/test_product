@@ -34,8 +34,9 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .auth-layout__brand::after { width: 520px; height: 520px; left: -280px; bottom: -310px; border: 1px solid rgba(159,194,224,.13); box-shadow: 0 0 0 75px rgba(159,194,224,.025), 0 0 0 150px rgba(159,194,224,.018); }
 .auth-layout__content { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; background: linear-gradient(180deg, #fff 0%, #fbfdff 100%); padding: 56px; }
 .auth-layout__content::before { content: ""; position: absolute; width: 350px; height: 350px; right: -220px; top: -210px; border-radius: 50%; background: #e9f6ff; }
-.auth-layout__form { z-index: 1; width: 100%; max-width: 480px; animation: form-enter .5s ease both; }
+.auth-layout__form { z-index: 1; width: 100%; max-width: 480px; animation: form-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
 .auth-layout__form--wide { max-width: 680px; }
+.auth-layout__form--exiting { animation: form-exit 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards !important; pointer-events: none; }
 .auth-layout__mobile-brand { display: none; }
 
 .brand-panel { position: relative; z-index: 1; min-height: 100vh; padding: clamp(44px, 7vw, 100px) clamp(42px, 5.5vw, 78px) 70px; color: #fff; display: flex; flex-direction: column; justify-content: space-between; }
@@ -153,7 +154,89 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .success-state { text-align: center; }
 .success-icon { width: 72px; height: 72px; margin: 0 auto 24px; border-radius: 50%; display: grid; place-items: center; background: #e6f5ec; color: #1e8449; font-size: 36px; font-weight: 800; }
 
-@keyframes form-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes form-enter {
+  0% { opacity: 0; transform: translateY(20px) scale(0.96); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+}
+
+@keyframes form-exit {
+  0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+  100% { opacity: 0; transform: translateY(-16px) scale(0.95); filter: blur(4px); }
+}
+
+/* Advanced Request Access Toggle Button */
+.request-access-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 15px;
+  margin-left: 6px;
+  border: 1px solid rgba(27, 144, 214, 0.3);
+  border-radius: 99px;
+  background: linear-gradient(135deg, rgba(239, 248, 255, 0.95), rgba(255, 255, 255, 0.95));
+  color: var(--blue);
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 112, 192, 0.08);
+  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.request-access-toggle:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: var(--blue);
+  background: linear-gradient(135deg, #d8efff, #ffffff);
+  box-shadow: 0 6px 20px rgba(0, 112, 192, 0.18);
+  color: #005694;
+  text-decoration: none;
+}
+
+.request-access-toggle:active {
+  transform: scale(0.93);
+  box-shadow: 0 2px 6px rgba(0, 112, 192, 0.12);
+}
+
+.request-access-toggle .toggle-icon {
+  display: inline-block;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.request-access-toggle:hover .toggle-icon {
+  transform: translateX(4px) scale(1.15);
+}
+
+/* Submit Access Request Button & Step Animations */
+.submit-access-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.submit-access-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent);
+  transition: left 0.6s ease;
+}
+
+.submit-access-btn:hover:not(:disabled)::after {
+  left: 100%;
+}
+
+.submit-access-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.access-flow__step {
+  animation: step-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes step-fade-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
 @media (max-width: 1150px) {
   .auth-layout { grid-template-columns: minmax(0, 1fr) 500px; }
