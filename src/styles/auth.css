@@ -118,6 +118,9 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .password-rules li.is-valid span { color: #1e8449; }
 
 .multi-select { position: relative; }
+.multi-select.is-open { z-index: 50; }
+.access-flow__step:has(.multi-select.is-open),
+.form-field:has(.multi-select.is-open) { z-index: 50; position: relative; }
 .multi-select__control { min-height: 42px; display: flex; align-items: center; gap: 5px; padding: 4px 7px; border: 1px solid var(--border); border-radius: 9px; background: #fff; cursor: text; box-shadow: 0 2px 5px rgba(10,37,64,.025); }
 .multi-select.is-open .multi-select__control { border-color: #3289d3; box-shadow: 0 0 0 4px rgba(27,144,214,.13); }
 .multi-select.has-error .multi-select__control { border-color: var(--error); }
@@ -134,7 +137,7 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .multi-select__search::placeholder { color: #788b9d; }
 .multi-select__chevron { align-self: center; color: #6f8497; font-size: 18px; line-height: 1; transition: transform .2s ease; }
 .multi-select.is-open .multi-select__chevron { transform: rotate(180deg); }
-.multi-select__options { display: none; position: static; width: 100%; max-height: 190px; overflow: auto; margin-top: 7px; padding: 7px; border: 1px solid #d4e0ea; border-radius: 11px; background: #fff; box-shadow: 0 10px 25px rgba(10,37,64,.12); }
+.multi-select__options { display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 100; max-height: 220px; overflow-y: auto; padding: 7px; border: 1px solid #ccdbe7; border-radius: 11px; background: #fff; box-shadow: 0 14px 36px rgba(10,37,64,.18); }
 .multi-select.is-open .multi-select__options { display: block; animation: select-enter .15s ease both; }
 .multi-select__options-header { position: sticky; top: -7px; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin: -7px -7px 5px; padding: 9px 11px; border-bottom: 1px solid #edf2f6; background: #fff; color: var(--muted); font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .05em; }
 .multi-select__options-header button { width: auto !important; padding: 2px !important; color: var(--blue) !important; font-size: 10px !important; }

@@ -26,9 +26,9 @@ export const AUTH_CONFIG = {
     historyCount: numberValue('VITE_PASSWORD_HISTORY_COUNT', 5),
   },
   registrationMasters: {
-    segments: listValue('VITE_SEGMENTS', 'Segment A,Segment B'),
-    channels: listValue('VITE_CHANNELS', 'Channel A,Channel B'),
-    brands: listValue('VITE_BRANDS', 'Brand A,Brand B'),
+    segments: listValue('VITE_SEGMENTS', 'Segment A,Segment B,Segment C,Segment D,Segment E,Segment F'),
+    channels: listValue('VITE_CHANNELS', 'Channel A,Channel B,Channel C,Channel D,Channel E,Channel F'),
+    brands: listValue('VITE_BRANDS', 'Brand A,Brand B,Brand C,Brand D,Brand E,Brand F'),
   },
   theme: {
     navy: value('VITE_COLOR_NAVY', '#0a2540'),
