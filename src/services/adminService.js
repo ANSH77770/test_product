@@ -1,22 +1,44 @@
 import { apiRequest } from '@/services/apiClient';
 
-const API = '/api/v1/admin';
+const API = '/api/v1/users';
+
+const accessBody = (access = {}) => ({
+  segment: access.segment || access.segments || [],
+  channel: access.channel || access.channels || [],
+  brand: access.brand || access.brands || [],
+  permissions: access.permissions || [],
+});
 
 export const adminService = {
-  getPendingUsers: () => apiRequest(`${API}/pending-users`),
-  getUsers: () => apiRequest(`${API}/users`),
+  getPendingUsers: () => apiRequest(`${API}/pending`),
+
+  getUsers: () => apiRequest(API),
+
   approveUser(userId, access) {
-    return apiRequest(`${API}/approve/${encodeURIComponent(userId)}`, {
+    return apiRequest(`${API}/${encodeURIComponent(userId)}/status`, {
       method: 'PUT',
+      body: { status: 'ACTIVE', ...accessBody(access) },
+    });
+  },
+
+  rejectUser(userId) {
+    return apiRequest(`${API}/${encodeURIComponent(userId)}/status`, {
+      method: 'PUT',
+      body: { status: 'REJECTED' },
+    });
+  },
+
+  createUser(user) {
+    return apiRequest(API, {
+      method: 'POST',
       body: {
-        segment: access.segment || access.segments || [],
-        channel: access.channel || access.channels || [],
-        brand: access.brand || access.brands || [],
-        permissions: access.permissions || [],
+        ...user,
+        ...accessBody(user),
+        role: user.role || 'USER',
+        status: user.status || 'ACTIVE',
       },
     });
   },
-  rejectUser: (userId) => apiRequest(`${API}/reject/${encodeURIComponent(userId)}`, { method: 'PUT' }),
-  createUser: (user) => apiRequest(`${API}/create-user`, { method: 'POST', body: user }),
-  deleteUser: (userId) => apiRequest(`${API}/delete-user/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
+
+  deleteUser: (userId) => apiRequest(`${API}/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
 };

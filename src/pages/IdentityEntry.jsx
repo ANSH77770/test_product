@@ -51,7 +51,6 @@ export function IdentityEntry() {
         onRegister={handleRegisterTransition}
         loading={loading}
       />
-      <p className="support-text">{AUTH_CONFIG.supportText}</p>
     </AuthSplitLayout>
   );
 }

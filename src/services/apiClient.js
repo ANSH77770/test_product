@@ -7,7 +7,7 @@ const buildUrl = (path) => {
 
 const parseResponse = async (response, responseType) => {
   if (response.status === 204) return null;
-  if (responseType === 'blob') return response.blob();
+  if (responseType === 'blob' && response.ok) return response.blob();
   const contentType = response.headers.get('content-type') || '';
   if (contentType.includes('application/json')) return response.json();
   const text = await response.text();
@@ -55,7 +55,8 @@ export async function apiRequest(path, options = {}) {
 
   const data = await parseResponse(response, responseType);
   if (!response.ok) {
-    const message = data?.detail || data?.message || `Request failed with status ${response.status}.`;
+    const detail = data?.detail || data?.message || `Request failed with status ${response.status}.`;
+    const message = data?.error_code ? `${detail} (${data.error_code})` : detail;
     throw new ApiError(message, response.status, data);
   }
   return data;

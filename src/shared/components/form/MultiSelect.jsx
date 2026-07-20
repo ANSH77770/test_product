@@ -127,12 +127,17 @@ export function MultiSelect({
       >
         <div className="multi-select__control" onClick={() => setIsOpen(true)} aria-disabled={disabled}>
           <div className="multi-select__values">
-            {value.map((option) => (
+            {!isOpen && value.slice(0, 1).map((option) => (
               <span className="multi-select__chip" key={option}>
                 <span>{option}</span>
                 <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={(event) => remove(option, event)} aria-label={`Remove ${option}`}>×</button>
               </span>
             ))}
+            {!isOpen && value.length > 1 && (
+              <button type="button" className="multi-select__more" onClick={() => setIsOpen(true)}>
+                +{value.length - 1} more
+              </button>
+            )}
             <input
               id={id}
               className="multi-select__search"

@@ -118,9 +118,8 @@ export function AccessEnrollment() {
         </form>
         <p className="form-switch">
           Already registered?{' '}
-          <button className="link-button request-access-toggle" type="button" onClick={handleLoginTransition}>
-            <span className="toggle-icon toggle-icon--back"></span>
-            <span>Sign in</span>
+          <button className="link-button registration-login-link" type="button" onClick={handleLoginTransition}>
+            <span>Log in</span>
           </button>
         </p>
       </div>

@@ -2,7 +2,7 @@ import { apiRequest } from '@/services/apiClient';
 
 export const excelService = {
   async generateTemplate(payload, trace = {}) {
-    const blob = await apiRequest('/api/v1/excel/generate-template', {
+    const blob = await apiRequest('/api/v1/templates', {
       method: 'POST',
       body: payload,
       responseType: 'blob',

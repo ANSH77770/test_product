@@ -20,7 +20,7 @@ export const authService = {
   },
 
   async verifyOtp({ email, code, rememberMe = false }) {
-    const response = await apiRequest(`${API}/verify-login-otp`, {
+    const response = await apiRequest(`${API}/otp/verify`, {
       method: 'POST', auth: false, body: { email, purpose: 'LOGIN', otp: code },
     });
     tokenStorage.set(response.access_token, rememberMe);
@@ -28,7 +28,7 @@ export const authService = {
   },
 
   resendOtp(email) {
-    return apiRequest(`${API}/resend-login-otp`, {
+    return apiRequest(`${API}/otp`, {
       method: 'POST', auth: false, body: { email, purpose: 'LOGIN' },
     });
   },
@@ -37,7 +37,7 @@ export const authService = {
     const nameParts = registration.name.trim().split(/\s+/);
     const firstName = nameParts.shift();
     const lastName = nameParts.join(' ') || firstName;
-    const response = await apiRequest(`${API}/signup`, {
+    const response = await apiRequest(`${API}/users`, {
       method: 'POST',
       auth: false,
       body: {
@@ -55,13 +55,13 @@ export const authService = {
   },
 
   verifyRegistrationOtp(email, otp) {
-    return apiRequest(`${API}/verify-registration-otp`, {
+    return apiRequest(`${API}/otp/verify`, {
       method: 'POST', auth: false, body: { email, purpose: 'REGISTRATION', otp },
     });
   },
 
   resendRegistrationOtp(email) {
-    return apiRequest(`${API}/resend-registration-otp`, {
+    return apiRequest(`${API}/otp`, {
       method: 'POST', auth: false, body: { email, purpose: 'REGISTRATION' },
     });
   },
@@ -76,7 +76,7 @@ export const authService = {
     return { changed: true, demo: true };
   },
 
-  getCurrentUser: () => apiRequest(`${API}/me`),
+  getCurrentUser: () => apiRequest(`${API}/users/me`),
 
   async logout() {
     try {
