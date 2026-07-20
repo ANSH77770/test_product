@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { authService } from '@/services/authService';
+import { roleLabel } from '@/lib/roles';
 import { AuthHeading, AuthSplitLayout, BrandPanel, Button, OtpForm } from '@/shared/components';
 
 export function ChallengeVerification() {
@@ -25,15 +26,10 @@ export function ChallengeVerification() {
       const result = await authService.verifyOtp({
         email: state.destination,
         code,
-        rememberMe: state.rememberMe,
       });
       if (result.authenticated) {
         const currentUser = await authService.getCurrentUser();
-        const backendRole = String(currentUser.role || '').trim().toUpperCase();
-        const isBackendAdministrator = ['ADMIN', 'FINANCE ADMINISTRATOR'].includes(backendRole);
-        const authenticatedRole = isBackendAdministrator
-          ? 'Finance Administrator'
-          : state.role === 'Finance Administrator' ? 'Finance Planner' : state.role;
+        const authenticatedRole = roleLabel(currentUser.role);
         sessionStorage.setItem('authenticated', 'true');
         sessionStorage.setItem('role', authenticatedRole);
         sessionStorage.setItem('userEmail', currentUser.email || state.destination);
@@ -54,12 +50,14 @@ export function ChallengeVerification() {
       {verified ? (
         <div className="success-state" role="status">
           <div className="success-icon">✓</div>
-          <AuthHeading title="Authentication successful" subtitle="Your identity has been verified." />
+          <AuthHeading
+            title={state.purpose === 'REGISTRATION' ? 'Awaiting approval' : 'Authentication successful'}
+            subtitle={state.purpose === 'REGISTRATION'
+              ? 'Your registration is verified and is awaiting administrator approval.'
+              : 'Your identity has been verified.'}
+          />
           {state.purpose === 'REGISTRATION' && (
             <Button type="button" onClick={() => navigate('/login')}>Continue to sign in</Button>
-          )}
-          {state.role === 'Finance Administrator' && (
-            <Button type="button" onClick={() => navigate('/admin/access')}>Open administration</Button>
           )}
         </div>
       ) : (

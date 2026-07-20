@@ -1,13 +1,38 @@
 import { apiRequest, tokenStorage } from '@/services/apiClient';
+import { ENDPOINTS } from '@/services/endpoints';
 
-const API = '/api/v1/auth';
+const resendOtp = (email, purpose) => apiRequest(ENDPOINTS.auth.resendOtp, {
+  method: 'POST', auth: false, body: { email, purpose },
+});
+
+const verifyOtpRequest = (email, purpose, otp) => apiRequest(ENDPOINTS.auth.verifyOtp, {
+  method: 'POST', auth: false, body: { email, purpose, otp },
+});
+
+const registrationPayload = (registration) => ({
+  first_name: registration.firstName,
+  last_name: registration.lastName,
+  username: registration.username,
+  email: registration.email,
+  password: registration.password,
+  role: registration.role,
+  segment: registration.segments,
+  channel: registration.channels,
+  brand: registration.brands,
+});
 
 export const authService = {
-  health: () => apiRequest('/health', { auth: false }),
+  health: () => apiRequest(ENDPOINTS.health, { auth: false }),
 
-  async requestOtp({ username, password, rememberMe = false }) {
-    const response = await apiRequest(`${API}/login`, {
-      method: 'POST', auth: false, body: { identifier: username, password },
+  async requestOtp({ username, password }) {
+    const response = await apiRequest(ENDPOINTS.auth.login, {
+      method: 'POST',
+      auth: false,
+      body: {
+        identifier: username.trim(),
+        email: username.trim(),
+        password,
+      },
     });
     return {
       challengeId: response.challenge_id,
@@ -15,72 +40,50 @@ export const authService = {
       purpose: response.purpose,
       expiresAt: response.expires_at,
       resendAvailableAt: response.resend_available_at,
-      rememberMe,
     };
   },
 
-  async verifyOtp({ email, code, rememberMe = false }) {
-    const response = await apiRequest(`${API}/otp/verify`, {
-      method: 'POST', auth: false, body: { email, purpose: 'LOGIN', otp: code },
-    });
-    tokenStorage.set(response.access_token, rememberMe);
+  async verifyOtp({ email, code }) {
+    const response = await verifyOtpRequest(email, 'LOGIN', code);
+    tokenStorage.setTokens(response);
     return { ...response, authenticated: Boolean(response.access_token) };
   },
 
-  resendOtp(email) {
-    return apiRequest(`${API}/otp`, {
-      method: 'POST', auth: false, body: { email, purpose: 'LOGIN' },
-    });
-  },
+  resendOtp: (email) => resendOtp(email, 'LOGIN'),
 
   async registerUser(registration) {
-    const nameParts = registration.name.trim().split(/\s+/);
-    const firstName = nameParts.shift();
-    const lastName = nameParts.join(' ') || firstName;
-    const response = await apiRequest(`${API}/users`, {
-      method: 'POST',
-      auth: false,
-      body: {
-        first_name: firstName,
-        last_name: lastName,
-        username: registration.username || registration.email.split('@')[0],
-        email: registration.email,
-        password: registration.password,
-        segment: registration.segments,
-        channel: registration.channels,
-        brand: registration.brands,
-      },
+    const response = await apiRequest(ENDPOINTS.auth.signup, {
+      method: 'POST', auth: false, body: registrationPayload(registration),
     });
     return { ...response, email: registration.email };
   },
 
-  verifyRegistrationOtp(email, otp) {
-    return apiRequest(`${API}/otp/verify`, {
-      method: 'POST', auth: false, body: { email, purpose: 'REGISTRATION', otp },
+  verifyRegistrationOtp: (email, otp) => verifyOtpRequest(email, 'REGISTRATION', otp),
+  resendRegistrationOtp: (email) => resendOtp(email, 'REGISTRATION'),
+
+  requestPasswordReset(email) {
+    return apiRequest(ENDPOINTS.auth.forgotPassword, {
+      method: 'POST', auth: false, body: { email },
     });
   },
 
-  resendRegistrationOtp(email) {
-    return apiRequest(`${API}/otp`, {
-      method: 'POST', auth: false, body: { email, purpose: 'REGISTRATION' },
+  resetPassword({ email, otp, newPassword }) {
+    return apiRequest(ENDPOINTS.auth.resetPassword, {
+      method: 'POST', auth: false, body: { email, otp, new_password: newPassword },
     });
   },
 
-  // These screens remain in demo mode because the supplied API reference does
-  // not define password-reset or password-change endpoints.
-  async requestPasswordReset(email) {
-    return { sent: true, destination: email, demo: true };
+  changePassword({ current, next }) {
+    return apiRequest(ENDPOINTS.auth.changePassword, {
+      method: 'POST', body: { current_password: current, new_password: next },
+    });
   },
 
-  async changePassword() {
-    return { changed: true, demo: true };
-  },
-
-  getCurrentUser: () => apiRequest(`${API}/users/me`),
+  getCurrentUser: () => apiRequest(ENDPOINTS.auth.currentUser),
 
   async logout() {
     try {
-      return await apiRequest(`${API}/logout`, { method: 'POST' });
+      return await apiRequest(ENDPOINTS.auth.logout, { method: 'POST', skipRefresh: true });
     } finally {
       tokenStorage.clear();
     }

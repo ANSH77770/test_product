@@ -1,24 +1,34 @@
 // Previous name: RegistrationPage.jsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AUTH_CONFIG } from '@/config/authConfig';
-import { useMasterData } from '@/hooks/useMasterData';
 import { validatePassword } from '@/lib/passwordPolicy';
 import { authService } from '@/services/authService';
-import { accessControlService } from '@/services/accessControlService';
+import { referenceDataService } from '@/services/referenceDataService';
 import { AuthHeading, AuthSplitLayout, BrandPanel, Button, MultiSelect, PasswordInput, PasswordRequirements, TextInput } from '@/shared/components';
 
-const EMPTY_FORM = { name: '', email: '', password: '', segments: [], channels: [], brands: [] };
+const EMPTY_FORM = { firstName: '', lastName: '', username: '', email: '', role: '', password: '', segments: [], channels: [], brands: [] };
+const EMPTY_OPTIONS = { segments: [], channels: [], brands: [], roles: [] };
 
 export function AccessEnrollment() {
   const navigate = useNavigate();
-  const masterData = useMasterData();
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   const [openAccessSelect, setOpenAccessSelect] = useState(null);
   const [exiting, setExiting] = useState(false);
+  const [accessOptions, setAccessOptions] = useState(EMPTY_OPTIONS);
+  const [referenceLoading, setReferenceLoading] = useState(true);
+  const [referenceError, setReferenceError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    referenceDataService.getAll()
+      .then((data) => { if (active) setAccessOptions(data); })
+      .catch((error) => { if (active) setReferenceError(error.message); })
+      .finally(() => { if (active) setReferenceLoading(false); });
+    return () => { active = false; };
+  }, []);
 
   const updateText = (field) => (event) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));
@@ -34,34 +44,58 @@ export function AccessEnrollment() {
     setErrors((current) => ({ ...current, [field]: undefined }));
     setOpenAccessSelect(null);
   };
-  const activeNames = (type) => masterData[type].filter((item) => item.active).map((item) => item.name);
-
+  const updateRole = (roles) => {
+    setForm((current) => ({ ...current, role: roles.at(-1) || '' }));
+    setErrors((current) => ({ ...current, role: undefined }));
+  };
   const submit = async (event) => {
     event.preventDefault();
     const nextErrors = {};
-    if (!form.name.trim()) nextErrors.name = 'Name is required.';
+    if (!form.firstName.trim() || form.firstName.trim().length > 50) nextErrors.firstName = 'Enter a first name of up to 50 characters.';
+    if (!form.lastName.trim() || form.lastName.trim().length > 50) nextErrors.lastName = 'Enter a last name of up to 50 characters.';
+    if (form.username.trim().length < 3 || form.username.trim().length > 50) nextErrors.username = 'Username must contain 3–50 characters.';
     if (!/^\S+@\S+\.\S+$/.test(form.email)) nextErrors.email = 'Enter a valid email address.';
-    const passwordError = validatePassword(form.password, form);
+    if (!form.role) nextErrors.role = 'Select a role.';
+    const identity = { name: `${form.firstName} ${form.lastName}`, email: form.email };
+    const passwordError = validatePassword(form.password, identity);
     if (passwordError) nextErrors.password = passwordError;
-    if (!form.segments.length) nextErrors.segments = 'Select at least one segment.';
-    if (!form.channels.length) nextErrors.channels = 'Select at least one channel.';
-    if (!form.brands.length) nextErrors.brands = 'Select at least one brand.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
     setLoading(true);
     setApiError('');
     try {
       await authService.registerUser(form);
-      accessControlService.saveAssignment(form.email, {
-        segments: form.segments,
-        channels: form.channels,
-        brands: form.brands,
-      });
       navigate('/otp-verification', {
         state: { destination: form.email, purpose: 'REGISTRATION' },
       });
     } catch (requestError) {
-      setApiError(requestError.message);
+      if (requestError.status === 409) {
+        const detail = requestError.message.toLowerCase();
+        setErrors((current) => ({
+          ...current,
+          ...(detail.includes('email') ? { email: 'This email is already registered.' } : {}),
+          ...(detail.includes('username') ? { username: 'This username is already registered.' } : {}),
+        }));
+        if (!detail.includes('email') && !detail.includes('username')) setApiError(requestError.message);
+      } else if (requestError.status === 400 || requestError.status === 422) {
+        const validationItems = Array.isArray(requestError.data?.detail) ? requestError.data.detail : [];
+        const fieldErrors = validationItems.reduce((result, item) => {
+          const apiField = Array.isArray(item?.loc) ? item.loc.at(-1) : '';
+          const formField = {
+            first_name: 'firstName',
+            last_name: 'lastName',
+            username: 'username',
+            email: 'email',
+            password: 'password',
+            role: 'role',
+          }[apiField];
+          return formField ? { ...result, [formField]: item.msg || 'Invalid value.' } : result;
+        }, {});
+        if (Object.keys(fieldErrors).length) setErrors((current) => ({ ...current, ...fieldErrors }));
+        else setApiError(requestError.message);
+      } else {
+        setApiError(requestError.message);
+      }
     } finally { setLoading(false); }
   };
 
@@ -84,6 +118,7 @@ export function AccessEnrollment() {
         <div className="registration-form__eyebrow">New account</div>
         <AuthHeading title="Request access" subtitle="Tell us who you are and choose the business areas you need." />
         {apiError && <div className="notice-error" role="alert">{apiError}</div>}
+        {referenceError && <div className="notice-error" role="alert">Unable to load access options. {referenceError}</div>}
         <form onSubmit={submit} noValidate>
           <section className="registration-section" aria-labelledby="identity-section-title">
             <div className="registration-section__heading">
@@ -91,11 +126,16 @@ export function AccessEnrollment() {
               <div><h3 id="identity-section-title">Account details</h3><p>Use your work email address.</p></div>
             </div>
             <div className="registration-grid registration-grid--identity">
-              <TextInput id="registration-name" label="Name" required value={form.name} onChange={updateText('name')} error={errors.name} />
+              <TextInput id="registration-first-name" label="First name" required maxLength={50} value={form.firstName} onChange={updateText('firstName')} error={errors.firstName} />
+              <TextInput id="registration-last-name" label="Last name" required maxLength={50} value={form.lastName} onChange={updateText('lastName')} error={errors.lastName} />
+            </div>
+            <div className="registration-grid registration-grid--identity">
+              <TextInput id="registration-username" label="Username" required minLength={3} maxLength={50} value={form.username} onChange={updateText('username')} error={errors.username} />
               <TextInput id="registration-email" label="Email" type="email" required value={form.email} onChange={updateText('email')} error={errors.email} />
             </div>
+            <MultiSelect id="registration-role" label="Role" required options={accessOptions.roles} value={form.role ? [form.role] : []} onChange={updateRole} error={errors.role} disabled={referenceLoading || Boolean(referenceError)} disabledHint={referenceLoading ? 'Loading roles…' : 'Roles unavailable'} open={openAccessSelect === 'role'} onOpenChange={(open) => setOpenAccessSelect(open ? 'role' : null)} />
             <PasswordInput id="registration-password" label="Password" required value={form.password} onChange={updateText('password')} error={errors.password} />
-            <PasswordRequirements password={form.password} identity={form} />
+            <PasswordRequirements password={form.password} identity={{ name: `${form.firstName} ${form.lastName}`, email: form.email }} />
           </section>
           <section className="registration-section" aria-labelledby="access-section-title">
             <div className="registration-section__heading">
@@ -104,13 +144,13 @@ export function AccessEnrollment() {
             </div>
             <div className="access-flow" aria-label="Business access selection steps">
               <div className="access-flow__step">
-                <MultiSelect id="segments" label="Segments" required options={activeNames('segments')} value={form.segments} onChange={updateList('segments')} error={errors.segments} open={openAccessSelect === 'segments'} onOpenChange={(open) => setOpenAccessSelect(open ? 'segments' : null)} />
+                <MultiSelect id="segments" label="Segments" options={accessOptions.segments} value={form.segments} onChange={updateList('segments')} error={errors.segments} disabled={referenceLoading || Boolean(referenceError)} disabledHint={referenceLoading ? 'Loading segments…' : 'Segments unavailable'} open={openAccessSelect === 'segments'} onOpenChange={(open) => setOpenAccessSelect(open ? 'segments' : null)} />
               </div>
               <div className="access-flow__step">
-                <MultiSelect id="channels" label="Channels" required options={activeNames('channels')} value={form.channels} onChange={updateList('channels')} error={errors.channels} disabled={!form.segments.length} disabledHint="Select a segment first" open={openAccessSelect === 'channels'} onOpenChange={(open) => setOpenAccessSelect(open ? 'channels' : null)} />
+                <MultiSelect id="channels" label="Channels" options={accessOptions.channels} value={form.channels} onChange={updateList('channels')} error={errors.channels} disabled={!form.segments.length} disabledHint="Select a segment first" open={openAccessSelect === 'channels'} onOpenChange={(open) => setOpenAccessSelect(open ? 'channels' : null)} />
               </div>
               <div className="access-flow__step">
-                <MultiSelect id="brands" label="Brands" required options={activeNames('brands')} value={form.brands} onChange={updateList('brands')} error={errors.brands} disabled={!form.channels.length} disabledHint="Select a channel first" open={openAccessSelect === 'brands'} onOpenChange={(open) => setOpenAccessSelect(open ? 'brands' : null)} />
+                <MultiSelect id="brands" label="Brands" options={accessOptions.brands} value={form.brands} onChange={updateList('brands')} error={errors.brands} disabled={!form.channels.length} disabledHint="Select a channel first" open={openAccessSelect === 'brands'} onOpenChange={(open) => setOpenAccessSelect(open ? 'brands' : null)} />
               </div>
             </div>
           </section>
@@ -118,7 +158,7 @@ export function AccessEnrollment() {
         </form>
         <p className="form-switch">
           Already registered?{' '}
-          <button className="link-button registration-login-link" type="button" onClick={handleLoginTransition}>
+          <button className="link-button auth-inline-link" type="button" onClick={handleLoginTransition}>
             <span>Log in</span>
           </button>
         </p>

@@ -1,11 +1,6 @@
 const env = import.meta.env;
 const value = (key, fallback) => env[key]?.trim() || fallback;
 const numberValue = (key, fallback) => Number(value(key, String(fallback))) || fallback;
-const listValue = (key, fallback) => value(key, fallback)
-  .split(',')
-  .map((item) => item.trim())
-  .filter(Boolean);
-
 export const AUTH_CONFIG = {
   companyName: value('VITE_COMPANY_NAME', 'Your Company'),
   companyInitial: value('VITE_COMPANY_INITIAL', 'Y'),
@@ -15,20 +10,13 @@ export const AUTH_CONFIG = {
   brandHeadline: value('VITE_BRAND_HEADLINE', 'Planning built for your team.'),
   loginTitle: value('VITE_LOGIN_TITLE', 'Sign in'),
   loginSubtitle: value('VITE_LOGIN_SUBTITLE', 'Sign in to continue.'),
-  supportText: value('VITE_SUPPORT_TEXT', 'Need access? Contact Support'),
   footerText: value('VITE_FOOTER_TEXT', ''),
   defaultUsername: value('VITE_DEFAULT_USERNAME', ''),
-  roles: listValue('VITE_AUTH_ROLES', 'User,Administrator'),
   sessionTimeoutMinutes: numberValue('VITE_SESSION_TIMEOUT_MINUTES', 30),
   passwordPolicy: {
     minimumLength: numberValue('VITE_PASSWORD_MIN_LENGTH', 12),
     expiryDays: numberValue('VITE_PASSWORD_EXPIRY_DAYS', 90),
     historyCount: numberValue('VITE_PASSWORD_HISTORY_COUNT', 5),
-  },
-  registrationMasters: {
-    segments: listValue('VITE_SEGMENTS', 'Segment A,Segment B,Segment C,Segment D,Segment E,Segment F'),
-    channels: listValue('VITE_CHANNELS', 'Channel A,Channel B,Channel C,Channel D,Channel E,Channel F'),
-    brands: listValue('VITE_BRANDS', 'Brand A,Brand B,Brand C,Brand D,Brand E,Brand F'),
   },
   theme: {
     navy: value('VITE_COLOR_NAVY', '#0a2540'),

@@ -28,9 +28,15 @@ export function App() {
   const expireSession = useCallback(() => {
     sessionStorage.removeItem('authenticated');
     sessionStorage.removeItem('role');
+    sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('userEmail');
     setSessionActive(false);
     navigate('/login', { replace: true, state: { sessionExpired: true } });
   }, [navigate]);
+  useEffect(() => {
+    window.addEventListener('auth-session-expired', expireSession);
+    return () => window.removeEventListener('auth-session-expired', expireSession);
+  }, [expireSession]);
   useIdleSession({ enabled: sessionActive, timeoutMinutes: AUTH_CONFIG.sessionTimeoutMinutes, onTimeout: expireSession });
 
   return (
@@ -39,7 +45,7 @@ export function App() {
         <Route path="/login" element={<IdentityEntry />} />
         <Route path="/otp-verification" element={<ChallengeVerification />} />
         <Route path="/forgot-password" element={<RecoveryRequest />} />
-        <Route path="/change-password" element={<CredentialUpdate />} />
+        <Route path="/change-password" element={sessionActive ? <CredentialUpdate /> : <Navigate to="/login" replace />} />
         <Route path="/register" element={<AccessEnrollment />} />
         <Route path="/dashboard" element={sessionActive ? <WorkspaceHome /> : <Navigate to="/login" replace />} />
         <Route

@@ -17,10 +17,10 @@ export function IdentityEntry() {
     try {
       const challenge = await authService.requestOtp(credentials);
       navigate('/otp-verification', {
-        state: { ...challenge, role: credentials.role },
+        state: challenge,
       });
     } catch (requestError) {
-      setError(requestError.message);
+      setError(requestError.status === 401 ? 'Incorrect username or password.' : requestError.message);
     } finally {
       setLoading(false);
     }
@@ -44,7 +44,6 @@ export function IdentityEntry() {
       <AuthHeading title={AUTH_CONFIG.loginTitle} subtitle={AUTH_CONFIG.loginSubtitle} />
       {error && <div className="notice-error" role="alert">{error}</div>}
       <LoginForm
-        roles={AUTH_CONFIG.roles}
         defaultUsername={AUTH_CONFIG.defaultUsername}
         onSubmit={handleLogin}
         onForgotPassword={() => navigate('/forgot-password')}

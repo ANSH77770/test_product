@@ -9,20 +9,26 @@ export function RecoveryRequest() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
 
   const submit = async (event) => {
     event.preventDefault();
     if (!email.trim()) return;
     setLoading(true);
+    setError('');
     try {
       await authService.requestPasswordReset(email);
       setSent(true);
+    } catch (requestError) {
+      if (requestError.status >= 500 || requestError.status === 0) setError(requestError.message);
+      else setSent(true);
     } finally { setLoading(false); }
   };
 
   return (
     <AuthSplitLayout brandPanel={<BrandPanel />}>
       <AuthHeading title="Forgot password" subtitle="Enter your registered email to receive reset instructions." />
+      {error && <div className="notice-error" role="alert">{error}</div>}
       {sent ? (
         <div className="notice-success">If an account exists for {email}, reset instructions have been sent.</div>
       ) : (

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AUTH_CONFIG } from '@/config/authConfig';
 import { authService } from '@/services/authService';
 import { adminService } from '@/services/adminService';
+import { isAdminRole } from '@/lib/roles';
 
 export function WorkspaceHome() {
   const navigate = useNavigate();
@@ -13,8 +14,7 @@ export function WorkspaceHome() {
   })();
   const role = sessionStorage.getItem('role') || 'User';
   const email = sessionStorage.getItem('userEmail') || '';
-  const backendRole = String(currentUser.role || '').trim().toUpperCase();
-  const isAdministrator = ['ADMIN', 'FINANCE ADMINISTRATOR'].includes(backendRole);
+  const isAdministrator = isAdminRole(currentUser.role);
   const [pendingCount, setPendingCount] = useState(null);
   const [pendingError, setPendingError] = useState('');
 

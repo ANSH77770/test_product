@@ -68,20 +68,14 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .password-toggle:hover { color: var(--blue); background: var(--soft-blue); }
 .password-toggle svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .field-error { margin: 7px 0 0; color: var(--error); font-size: 13px; }
-.form-options { margin: 10px 0 24px; display: flex; align-items: center; justify-content: space-between; color: var(--muted); }
-.checkbox-label { display: flex; align-items: center; gap: 9px; font-size: 16px; }
-.checkbox-label input { width: 18px; height: 18px; accent-color: #1783ed; }
+.form-options { margin: 10px 0 24px; display: flex; justify-content: flex-end; color: var(--muted); }
 .link-button { padding: 3px 0; border: 0; background: transparent; color: #0875d1; font-size: 16px; }
 .link-button:hover { color: #005da4; text-decoration: underline; }
 .button { width: 100%; min-height: 58px; border-radius: 11px; font-size: 17px; font-weight: 700; }
 .button--primary { border: 1px solid #162b3f; background: linear-gradient(135deg, #172f45, #0a2540); color: #fff; box-shadow: 0 9px 22px rgba(10,37,64,.2); }
 .button--primary:hover:not(:disabled) { transform: translateY(-1px); background: linear-gradient(135deg, #1d3c57, #0d2e4c); box-shadow: 0 12px 25px rgba(10,37,64,.25); }
 .button--primary:active:not(:disabled) { transform: translateY(0); }
-.button--secondary { margin-top: 13px; border: 1px solid #a9bdcf; background: #fff; color: var(--ink); }
-.button--secondary:hover:not(:disabled) { background: #f6faff; border-color: #7f9db8; }
-.button--secondary span { color: var(--muted); font-weight: 500; }
 .button:disabled { cursor: not-allowed; opacity: .72; }
-.support-text { margin: 26px 0 0; text-align: center; color: var(--muted); font-size: 14px; }
 .form-switch { margin: 22px 0 0; text-align: center; color: var(--muted); font-size: 15px; }
 .notice-success { padding: 18px; border: 1px solid #a8dbc0; border-radius: 11px; background: #eefaf3; color: #17663a; line-height: 1.5; }
 .notice-error { margin: 0 0 20px; padding: 14px 16px; border: 1px solid #e5aaa3; border-radius: 11px; background: #fff1ef; color: #9f2f24; font-size: 14px; font-weight: 650; line-height: 1.45; }
@@ -102,18 +96,12 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .registration-form .control, .registration-form .password-control input { font-size: 14px; }
 .registration-form .password-toggle { width: 52px; }
 .registration-form > form > .button { min-height: 52px; margin-top: 2px; }
-.registration-form .form-switch { margin-top: 16px; }
-.registration-form .form-switch { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
-.registration-login-link { padding: 0; border: 0; background: transparent; color: var(--blue); font-size: 13px; font-weight: 700; line-height: 1.4; }
-.registration-login-link:hover { color: #005da4; text-decoration: underline; }
+.registration-form .form-switch { margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
 .login-signup-row { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
-.login-signup-link { padding: 0; border: 0; background: transparent; color: var(--blue); font-size: 13px; font-weight: 700; line-height: 1.4; }
-.login-signup-link:hover { color: #005da4; text-decoration: underline; }
+.auth-inline-link { padding: 0; border: 0; background: transparent; color: var(--blue); font-size: 13px; font-weight: 700; line-height: 1.4; }
+.auth-inline-link:hover { color: #005da4; text-decoration: underline; }
 .registration-grid { display: grid; gap: 14px; }
 .registration-grid--identity { grid-template-columns: 1fr 1.2fr; }
-.registration-grid--access { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.registration-grid--access .form-field > label { font-size: 13px; }
-.registration-grid--access .field-error { font-size: 11px; }
 .access-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 14px; }
 .access-flow__step { min-width: 0; }
 .access-flow__step .form-field { margin-bottom: 12px; }
@@ -124,9 +112,6 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .password-rules li.is-valid span { color: #1e8449; }
 
 .multi-select { position: relative; }
-.multi-select.is-open { z-index: 50; }
-.access-flow__step:has(.multi-select.is-open),
-.form-field:has(.multi-select.is-open) { z-index: 50; position: relative; }
 .multi-select__control { height: 42px; display: flex; align-items: center; gap: 5px; padding: 4px 7px; border: 1px solid var(--border); border-radius: 9px; background: #fff; cursor: text; box-shadow: 0 2px 5px rgba(10,37,64,.025); }
 .multi-select.is-open .multi-select__control { border-color: #3289d3; box-shadow: 0 0 0 4px rgba(27,144,214,.13); }
 .multi-select.has-error .multi-select__control { border-color: var(--error); }
@@ -172,49 +157,6 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 @keyframes form-exit {
   0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
   100% { opacity: 0; transform: translateY(-16px) scale(0.95); filter: blur(4px); }
-}
-
-/* Advanced Request Access Toggle Button */
-.request-access-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px 15px;
-  margin-left: 6px;
-  border: 1px solid rgba(27, 144, 214, 0.3);
-  border-radius: 99px;
-  background: linear-gradient(135deg, rgba(239, 248, 255, 0.95), rgba(255, 255, 255, 0.95));
-  color: var(--blue);
-  font-weight: 700;
-  box-shadow: 0 4px 14px rgba(0, 112, 192, 0.08);
-  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.request-access-toggle:hover {
-  transform: translateY(-2px) scale(1.03);
-  border-color: var(--blue);
-  background: linear-gradient(135deg, #d8efff, #ffffff);
-  box-shadow: 0 6px 20px rgba(0, 112, 192, 0.18);
-  color: #005694;
-  text-decoration: none;
-}
-
-.request-access-toggle:active {
-  transform: scale(0.93);
-  box-shadow: 0 2px 6px rgba(0, 112, 192, 0.12);
-}
-
-.request-access-toggle .toggle-icon {
-  display: inline-block;
-  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.request-access-toggle:hover .toggle-icon {
-  transform: translateX(4px) scale(1.15);
-}
-
-.request-access-toggle:hover .toggle-icon--back {
-  transform: translateX(-4px) scale(1.15);
 }
 
 /* Submit Access Request Button & Step Animations */
@@ -328,7 +270,7 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
   .otp-group { gap: 6px; }
   .otp-input { font-size: 20px; }
   .password-rules { grid-template-columns: 1fr 1fr; }
-  .registration-grid--identity, .registration-grid--access { grid-template-columns: 1fr; }
+  .registration-grid--identity { grid-template-columns: 1fr; }
   .registration-section { padding: 16px 14px 3px; }
   .registration-form .auth-heading h2 { font-size: 27px; }
 }
@@ -351,27 +293,10 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .admin-header { display: flex; align-items: center; justify-content: space-between; margin: 0 auto 28px; max-width: 1380px; }
 .admin-header span { color: var(--blue); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .admin-header h1 { margin: 5px 0 3px; color: var(--navy); font-size: 30px; }
-.admin-header p, .user-access-card > div:first-child p { margin: 0; color: var(--muted); }
-.admin-header > button, .user-lookup > button { padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--navy); font-weight: 700; }
-.admin-grid { max-width: 1380px; margin: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.admin-header p { margin: 0; color: var(--muted); }
+.admin-header > button { padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--navy); font-weight: 700; }
 .admin-card { padding: 20px; border: 1px solid #dae3eb; border-radius: 14px; background: #fff; box-shadow: 0 8px 28px rgba(10,37,64,.06); }
 .admin-card h2 { margin: 0 0 15px; color: var(--navy); font-size: 18px; }
-.master-add { display: flex; gap: 8px; margin-bottom: 14px; }
-.master-add input, .master-list input { min-width: 0; flex: 1; padding: 9px 10px; border: 1px solid var(--border); border-radius: 7px; outline: none; }
-.master-add button { padding: 8px 14px; border: 0; border-radius: 7px; background: var(--navy); color: #fff; font-weight: 700; }
-.master-list { max-height: 245px; overflow: auto; }
-.master-list > div { display: flex; gap: 8px; padding: 7px 0; border-top: 1px solid #edf1f4; }
-.master-list > div.is-inactive input { color: #9aa7b3; text-decoration: line-through; background: #f6f7f8; }
-.master-list button { padding: 6px 9px; border: 0; border-radius: 6px; font-size: 11px; font-weight: 700; }
-.master-list .deactivate { background: #fff0ee; color: #a43a2d; }
-.master-list .activate { background: #eaf8ef; color: #17663a; }
-.user-access-card { max-width: 1380px; margin: 22px auto 0; }
-.user-lookup { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 10px; max-width: 550px; margin-top: 18px; }
-.user-lookup .form-field { margin: 0; }
-.user-lookup > button { min-height: 58px; }
-.admin-assignment-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 18px 0 8px; }
-.user-access-card > .button { max-width: 260px; }
-.admin-saved { display: inline-block; margin: 0 0 0 16px; color: #1e8449; font-weight: 650; }
 .pending-users-card { max-width: 1380px; margin: 0 auto 22px; }
 .pending-users-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
 .pending-users-header > div > span { color: var(--blue); font-size: 10px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
@@ -402,7 +327,6 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .pending-user__footer button:disabled { cursor: wait; opacity: .65; }
 
 @media (max-width: 850px) {
-  .admin-grid, .admin-assignment-grid { grid-template-columns: 1fr; }
   .admin-header { align-items: flex-start; gap: 18px; }
   .pending-user { grid-template-columns: 1fr; }
   .pending-user__footer { grid-column: 1; }

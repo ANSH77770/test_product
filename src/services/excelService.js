@@ -1,8 +1,12 @@
 import { apiRequest } from '@/services/apiClient';
+import { ENDPOINTS } from '@/services/endpoints';
+import { downloadBlob, filenameFromContentDisposition } from '@/lib/fileDownload';
+
+const templateFilename = (payload) => `Zydus_Template_${payload?.planning_cycle || 'Planning'}.xlsx`;
 
 export const excelService = {
-  async generateTemplate(payload, trace = {}) {
-    const blob = await apiRequest('/api/v1/templates', {
+  generateTemplate(payload, trace = {}) {
+    return apiRequest(ENDPOINTS.templates, {
       method: 'POST',
       body: payload,
       responseType: 'blob',
@@ -11,16 +15,16 @@ export const excelService = {
         ...(trace.correlationId ? { 'X-Correlation-ID': trace.correlationId } : {}),
       },
     });
-    return blob;
   },
 
-  async downloadTemplate(payload, filename = 'planning-template.xlsx', trace) {
-    const blob = await this.generateTemplate(payload, trace);
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
+  async downloadTemplate(payload, fallbackFilename, trace = {}) {
+    const { data: blob, response } = await apiRequest(ENDPOINTS.templates, {
+      method: 'POST', body: payload, responseType: 'blob', returnResponse: true,
+      headers: {
+        ...(trace.requestId ? { 'X-Request-ID': trace.requestId } : {}),
+        ...(trace.correlationId ? { 'X-Correlation-ID': trace.correlationId } : {}),
+      },
+    });
+    downloadBlob(blob, filenameFromContentDisposition(response.headers) || fallbackFilename || templateFilename(payload));
   },
 };

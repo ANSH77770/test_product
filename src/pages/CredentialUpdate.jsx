@@ -20,9 +20,12 @@ export function CredentialUpdate() {
     if (policyError) return setError(policyError);
     if (values.next !== values.confirm) return setError('New password and confirmation do not match.');
     setLoading(true);
+    setError('');
     try {
       await authService.changePassword(values);
       setChanged(true);
+    } catch (requestError) {
+      setError(requestError.message);
     } finally { setLoading(false); }
   };
 

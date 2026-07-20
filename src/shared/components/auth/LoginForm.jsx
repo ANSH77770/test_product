@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { TextInput } from '@/shared/components/form/TextInput';
 import { PasswordInput } from '@/shared/components/form/PasswordInput';
-import { SelectInput } from '@/shared/components/form/SelectInput';
 import { Button } from '@/shared/components/ui/Button';
 
-export function LoginForm({ roles, defaultUsername = '', onSubmit, onForgotPassword, onRegister, loading = false }) {
+export function LoginForm({ defaultUsername = '', onSubmit, onForgotPassword, onRegister, loading = false }) {
   const [values, setValues] = useState({
     username: defaultUsername,
     password: '',
-    role: roles[0] ?? '',
-    rememberMe: true,
   });
   const [errors, setErrors] = useState({});
 
@@ -47,20 +44,14 @@ export function LoginForm({ roles, defaultUsername = '', onSubmit, onForgotPassw
         onChange={update('password')}
         error={errors.password}
       />
-      <SelectInput id="role" label="Demo role" options={roles} value={values.role} onChange={update('role')} />
-
       <div className="form-options">
-        <label className="checkbox-label">
-          <input type="checkbox" checked={values.rememberMe} onChange={update('rememberMe')} />
-          Remember me
-        </label>
         <button type="button" className="link-button" onClick={onForgotPassword}>Forgot password?</button>
       </div>
 
       <Button type="submit" loading={loading} className="submit-access-btn">Login</Button>
       <p className="form-switch login-signup-row">
         New user?{' '}
-        <button type="button" className="link-button login-signup-link" onClick={onRegister}>
+        <button type="button" className="link-button auth-inline-link" onClick={onRegister}>
           <span>Sign up</span>
         </button>
       </p>

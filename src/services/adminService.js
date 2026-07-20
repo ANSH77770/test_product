@@ -1,6 +1,5 @@
 import { apiRequest } from '@/services/apiClient';
-
-const API = '/api/v1/users';
+import { ENDPOINTS } from '@/services/endpoints';
 
 const accessBody = (access = {}) => ({
   segment: access.segment || access.segments || [],
@@ -10,26 +9,26 @@ const accessBody = (access = {}) => ({
 });
 
 export const adminService = {
-  getPendingUsers: () => apiRequest(`${API}/pending`),
+  getPendingUsers: () => apiRequest(ENDPOINTS.adminUsers.pending),
 
-  getUsers: () => apiRequest(API),
+  getUsers: () => apiRequest(ENDPOINTS.adminUsers.root),
 
   approveUser(userId, access) {
-    return apiRequest(`${API}/${encodeURIComponent(userId)}/status`, {
+    return apiRequest(ENDPOINTS.adminUsers.status(userId), {
       method: 'PUT',
       body: { status: 'ACTIVE', ...accessBody(access) },
     });
   },
 
   rejectUser(userId) {
-    return apiRequest(`${API}/${encodeURIComponent(userId)}/status`, {
+    return apiRequest(ENDPOINTS.adminUsers.status(userId), {
       method: 'PUT',
       body: { status: 'REJECTED' },
     });
   },
 
   createUser(user) {
-    return apiRequest(API, {
+    return apiRequest(ENDPOINTS.adminUsers.root, {
       method: 'POST',
       body: {
         ...user,
@@ -40,5 +39,5 @@ export const adminService = {
     });
   },
 
-  deleteUser: (userId) => apiRequest(`${API}/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
+  deleteUser: (userId) => apiRequest(ENDPOINTS.adminUsers.byId(userId), { method: 'DELETE' }),
 };
