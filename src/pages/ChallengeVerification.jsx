@@ -28,9 +28,16 @@ export function ChallengeVerification() {
         rememberMe: state.rememberMe,
       });
       if (result.authenticated) {
+        const currentUser = await authService.getCurrentUser();
+        const backendRole = String(currentUser.role || '').trim().toUpperCase();
+        const isBackendAdministrator = ['ADMIN', 'FINANCE ADMINISTRATOR'].includes(backendRole);
+        const authenticatedRole = isBackendAdministrator
+          ? 'Finance Administrator'
+          : state.role === 'Finance Administrator' ? 'Finance Planner' : state.role;
         sessionStorage.setItem('authenticated', 'true');
-        sessionStorage.setItem('role', state.role);
-        sessionStorage.setItem('userEmail', state.destination);
+        sessionStorage.setItem('role', authenticatedRole);
+        sessionStorage.setItem('userEmail', currentUser.email || state.destination);
+        sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
         window.dispatchEvent(new Event('auth-session-change'));
         navigate('/dashboard', { replace: true });
       }

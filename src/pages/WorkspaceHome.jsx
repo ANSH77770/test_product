@@ -1,13 +1,35 @@
 // Previous name: DashboardPage.jsx
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AUTH_CONFIG } from '@/config/authConfig';
 import { authService } from '@/services/authService';
+import { adminService } from '@/services/adminService';
 
 export function WorkspaceHome() {
   const navigate = useNavigate();
+  const currentUser = (() => {
+    try { return JSON.parse(sessionStorage.getItem('currentUser') || '{}'); }
+    catch { return {}; }
+  })();
   const role = sessionStorage.getItem('role') || 'User';
   const email = sessionStorage.getItem('userEmail') || '';
-  const isAdministrator = role === 'Finance Administrator';
+  const backendRole = String(currentUser.role || '').trim().toUpperCase();
+  const isAdministrator = ['ADMIN', 'FINANCE ADMINISTRATOR'].includes(backendRole);
+  const [pendingCount, setPendingCount] = useState(null);
+  const [pendingError, setPendingError] = useState('');
+
+  useEffect(() => {
+    if (!isAdministrator) return undefined;
+    let active = true;
+    adminService.getPendingUsers()
+      .then((response) => {
+        if (active) setPendingCount(Array.isArray(response?.users) ? response.users.length : 0);
+      })
+      .catch((error) => {
+        if (active) setPendingError(error.message);
+      });
+    return () => { active = false; };
+  }, [isAdministrator]);
 
   const signOut = async () => {
     try { await authService.logout(); } catch { /* Clear the local session even if logout fails. */ }
@@ -39,7 +61,18 @@ export function WorkspaceHome() {
         <div className="workspace-cards">
           <article><div>01</div><h2>Planning workspace</h2><p>Open the budgeting and planning workspace assigned to your role.</p><button type="button">Open workspace</button></article>
           <article><div>02</div><h2>Security settings</h2><p>Review your account security or update your password.</p><button type="button" onClick={() => navigate('/change-password')}>Change password</button></article>
-          {isAdministrator && <article><div>03</div><h2>Administration</h2><p>Manage master data and user access assignments.</p><button type="button" onClick={() => navigate('/admin/access')}>Open administration</button></article>}
+          {isAdministrator && (
+            <article className="workspace-admin-card">
+              <div>03</div>
+              <div className="pending-request-summary">
+                <span>{pendingCount === null ? '…' : pendingCount}</span>
+                <small>Pending access {pendingCount === 1 ? 'request' : 'requests'}</small>
+              </div>
+              <h2>Administration</h2>
+              <p>{pendingError || 'Review pending registrations and manage user access assignments.'}</p>
+              <button type="button" onClick={() => navigate('/admin/access')}>Review requests</button>
+            </article>
+          )}
         </div>
       </section>
     </main>

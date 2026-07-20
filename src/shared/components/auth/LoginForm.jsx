@@ -57,11 +57,13 @@ export function LoginForm({ roles, defaultUsername = '', onSubmit, onForgotPassw
         <button type="button" className="link-button" onClick={onForgotPassword}>Forgot password?</button>
       </div>
 
-      <Button type="submit" loading={loading}>Login</Button>
-      <Button type="button" variant="secondary" disabled>
-        Login with SSO <span>(coming soon)</span>
-      </Button>
-      <p className="form-switch">New user? <button type="button" className="link-button" onClick={onRegister}>Request access</button></p>
+      <Button type="submit" loading={loading} className="submit-access-btn">Login</Button>
+      <p className="form-switch login-signup-row">
+        New user?{' '}
+        <button type="button" className="link-button login-signup-link" onClick={onRegister}>
+          <span>Sign up</span>
+        </button>
+      </p>
     </form>
   );
 }
