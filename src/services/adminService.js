@@ -9,19 +9,26 @@ const accessBody = (access = {}) => ({
 });
 
 export const adminService = {
-  getPendingUsers: () => apiRequest(ENDPOINTS.adminUsers.pending),
+  async getPendingUsers() {
+    const response = await apiRequest(ENDPOINTS.adminUsers.root);
+    const users = Array.isArray(response) ? response : response?.users || [];
+    return { users: users.filter((user) => user.status === 'PENDING_APPROVAL') };
+  },
 
-  getUsers: () => apiRequest(ENDPOINTS.adminUsers.root),
+  async getUsers() {
+    const response = await apiRequest(ENDPOINTS.adminUsers.root);
+    return Array.isArray(response) ? response : response?.users || [];
+  },
 
   approveUser(userId, access) {
-    return apiRequest(ENDPOINTS.adminUsers.status(userId), {
+    return apiRequest(ENDPOINTS.adminUsers.byId(userId), {
       method: 'PUT',
       body: { status: 'ACTIVE', ...accessBody(access) },
     });
   },
 
   rejectUser(userId) {
-    return apiRequest(ENDPOINTS.adminUsers.status(userId), {
+    return apiRequest(ENDPOINTS.adminUsers.byId(userId), {
       method: 'PUT',
       body: { status: 'REJECTED' },
     });
@@ -34,7 +41,6 @@ export const adminService = {
         ...user,
         ...accessBody(user),
         role: user.role || 'USER',
-        status: user.status || 'ACTIVE',
       },
     });
   },

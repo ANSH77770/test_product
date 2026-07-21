@@ -77,6 +77,7 @@ const toApiError = (response, data) => {
 const execute = async (path, options) => {
   const { body, auth, responseType, headers: suppliedHeaders, returnResponse, skipRefresh: _skipRefresh, ...fetchOptions } = options;
   const headers = new Headers(suppliedHeaders);
+  headers.set('Accept', headers.get('Accept') || 'application/json');
   headers.set('X-Request-ID', headers.get('X-Request-ID') || uniqueId());
   headers.set('X-Correlation-ID', headers.get('X-Correlation-ID') || correlationId());
   if (!(body instanceof FormData)) headers.set('Content-Type', 'application/json');
@@ -122,7 +123,7 @@ export async function apiRequest(path, options = {}) {
   try {
     return await execute(path, requestOptions);
   } catch (error) {
-    if (!(error instanceof ApiError) || error.status !== 401 || !requestOptions.auth || requestOptions.skipRefresh) throw error;
+    if (!(error instanceof ApiError) || error.status !== 401 || !requestOptions.auth || requestOptions.skipRefresh || !tokenStorage.getRefreshToken()) throw error;
     try {
       await refreshAccessToken();
       return await execute(path, { ...requestOptions, skipRefresh: true });

@@ -31,6 +31,6 @@ Set `VITE_API_BASE_URL` in `.env` to the API host, without the `/api/v1` suffix:
 VITE_API_BASE_URL="http://localhost:8000"
 ```
 
-Authentication screens use the live signup, registration OTP, login OTP, current-user and logout endpoints. Reusable clients for administrator operations and Excel template generation are available in `src/services/adminService.js` and `src/services/excelService.js`. The supplied reference does not include password reset or change-password endpoints, so those two existing screens remain in demo mode.
+Authentication screens use the live signup, registration OTP, login OTP, token refresh, password reset, authenticated OTP password change, current-user and logout endpoints. Reusable clients for operational user management, bulk upload/download, reference data, and Excel template generation are available under `src/services`.
 
 See `REQUIREMENTS.md` for runtime, functional, and rebranding requirements.

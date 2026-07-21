@@ -30,7 +30,6 @@ export const authService = {
       auth: false,
       body: {
         identifier: username.trim(),
-        email: username.trim(),
         password,
       },
     });
@@ -73,9 +72,13 @@ export const authService = {
     });
   },
 
-  changePassword({ current, next }) {
+  requestPasswordChangeOtp() {
+    return apiRequest(ENDPOINTS.auth.requestPasswordChangeOtp, { method: 'POST' });
+  },
+
+  changePassword({ current, next, otp }) {
     return apiRequest(ENDPOINTS.auth.changePassword, {
-      method: 'POST', body: { current_password: current, new_password: next },
+      method: 'POST', body: { current_password: current, new_password: next, otp },
     });
   },
 

@@ -8,7 +8,6 @@ export function RecoveryRequest() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
 
   const submit = async (event) => {
@@ -18,10 +17,10 @@ export function RecoveryRequest() {
     setError('');
     try {
       await authService.requestPasswordReset(email);
-      setSent(true);
+      navigate('/reset-password', { state: { email } });
     } catch (requestError) {
       if (requestError.status >= 500 || requestError.status === 0) setError(requestError.message);
-      else setSent(true);
+      else navigate('/reset-password', { state: { email } });
     } finally { setLoading(false); }
   };
 
@@ -29,14 +28,10 @@ export function RecoveryRequest() {
     <AuthSplitLayout brandPanel={<BrandPanel />}>
       <AuthHeading title="Forgot password" subtitle="Enter your registered email to receive reset instructions." />
       {error && <div className="notice-error" role="alert">{error}</div>}
-      {sent ? (
-        <div className="notice-success">If an account exists for {email}, reset instructions have been sent.</div>
-      ) : (
-        <form onSubmit={submit}>
-          <TextInput id="reset-email" label="Email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} />
-          <Button type="submit" loading={loading}>Send reset instructions</Button>
-        </form>
-      )}
+      <form onSubmit={submit}>
+        <TextInput id="reset-email" label="Email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} />
+        <Button type="submit" loading={loading}>Send reset code</Button>
+      </form>
       <p className="form-switch"><button className="link-button" type="button" onClick={() => navigate('/login')}>← Back to sign in</button></p>
     </AuthSplitLayout>
   );

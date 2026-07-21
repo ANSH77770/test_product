@@ -10,15 +10,14 @@ export const ENDPOINTS = Object.freeze({
     refreshToken: '/api/v1/auth/refresh-token',
     forgotPassword: '/api/v1/auth/forgot-password',
     resetPassword: '/api/v1/auth/reset-password',
+    requestPasswordChangeOtp: '/api/v1/auth/change-password/request-otp',
     changePassword: '/api/v1/auth/change-password',
     currentUser: '/api/v1/auth/users/me',
     logout: '/api/v1/auth/logout',
   }),
   adminUsers: Object.freeze({
-    root: '/api/v1/users',
-    pending: '/api/v1/users/pending',
-    status: (userId) => `/api/v1/users/${encodeId(userId)}/status`,
-    byId: (userId) => `/api/v1/users/${encodeId(userId)}`,
+    root: '/api/users',
+    byId: (userId) => `/api/users/${encodeId(userId)}`,
   }),
   users: Object.freeze({
     root: '/api/users',

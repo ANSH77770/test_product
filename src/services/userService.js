@@ -5,5 +5,6 @@ export const userService = {
   getUsers: () => apiRequest(ENDPOINTS.users.root),
   getUser: (userId) => apiRequest(ENDPOINTS.users.byId(userId)),
   createUser: (user) => apiRequest(ENDPOINTS.users.root, { method: 'POST', body: user }),
+  updateUser: (userId, user) => apiRequest(ENDPOINTS.users.byId(userId), { method: 'PUT', body: user }),
   deleteUser: (userId) => apiRequest(ENDPOINTS.users.byId(userId), { method: 'DELETE' }),
 };

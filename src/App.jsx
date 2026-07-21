@@ -6,6 +6,7 @@ import { IdentityEntry } from '@/pages/IdentityEntry';
 import { ChallengeVerification } from '@/pages/ChallengeVerification';
 import { RecoveryRequest } from '@/pages/RecoveryRequest';
 import { CredentialUpdate } from '@/pages/CredentialUpdate';
+import { PasswordReset } from '@/pages/PasswordReset';
 import { AccessEnrollment } from '@/pages/AccessEnrollment';
 import { AccessConsole } from '@/pages/AccessConsole';
 import { WorkspaceHome } from '@/pages/WorkspaceHome';
@@ -45,6 +46,7 @@ export function App() {
         <Route path="/login" element={<IdentityEntry />} />
         <Route path="/otp-verification" element={<ChallengeVerification />} />
         <Route path="/forgot-password" element={<RecoveryRequest />} />
+        <Route path="/reset-password" element={<PasswordReset />} />
         <Route path="/change-password" element={sessionActive ? <CredentialUpdate /> : <Navigate to="/login" replace />} />
         <Route path="/register" element={<AccessEnrollment />} />
         <Route path="/dashboard" element={sessionActive ? <WorkspaceHome /> : <Navigate to="/login" replace />} />

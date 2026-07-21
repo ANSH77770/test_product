@@ -148,6 +148,8 @@ button, input, select { transition: border-color .2s ease, box-shadow .2s ease, 
 .otp-actions { display: flex; justify-content: space-between; margin-top: 22px; }
 .success-state { text-align: center; }
 .success-icon { width: 72px; height: 72px; margin: 0 auto 24px; border-radius: 50%; display: grid; place-items: center; background: #e6f5ec; color: #1e8449; font-size: 36px; font-weight: 800; }
+.success-state .notice-success { margin-bottom: 16px; }
+.reset-resend-message { margin: 14px 0 0; color: #17663a; text-align: center; font-size: 13px; }
 
 @keyframes form-enter {
   0% { opacity: 0; transform: translateY(20px) scale(0.96); filter: blur(4px); }
